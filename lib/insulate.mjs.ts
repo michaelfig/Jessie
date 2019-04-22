@@ -45,7 +45,7 @@ type InsulatedObject<T> = {
 
 const insulate = harden(<T>(warmTarget: T): Insulated<T> => {
     const warmToColdMap = new WeakMap(), coldToWarmMap = new WeakMap();
-    const wrapWithMaps = (obj, inMap, outMap) => {
+    const wrapWithMaps = (obj: any, inMap: WeakMap<object, any>, outMap: WeakMap<object, any>): any => {
         if (Object(obj) !== obj || $h_uninsulated.has(obj)) {
             // It's a neutral (primitive) type.
             return obj;
@@ -57,10 +57,10 @@ const insulate = harden(<T>(warmTarget: T): Insulated<T> => {
         }
         // If we want an object to come in, we reverse the map (our
         // inside is the object's outside).
-        const enter = (inbound) => wrapWithMaps(inbound, outMap, inMap);
+        const enter = (inbound: any) => wrapWithMaps(inbound, outMap, inMap);
         // If we want send an object out, we keep the order (our inside
         // is the object's inside).
-        const leave = (outThunk) => {
+        const leave = (outThunk: () => any) => {
             try {
                 return wrapWithMaps(outThunk(), inMap, outMap);
             }
@@ -68,27 +68,27 @@ const insulate = harden(<T>(warmTarget: T): Insulated<T> => {
                 throw wrapWithMaps(e, inMap, outMap);
             }
         };
-        const err = (msg) => leave(() => {
+        const err = (msg: string) => leave(() => {
             throw wrapWithMaps(TypeError(msg), inMap, outMap);
         });
         const handler = {
             // Traps that make sure our object is read-only.
-            defineProperty(_target, prop, _attributes) {
+            defineProperty(_target: any, prop: string | number, _attributes: any) {
                 throw err(`Cannot define property ${JSON.stringify(String(prop))} on insulated object`);
             },
-            setPrototypeOf(_target, _v) {
+            setPrototypeOf(_target: any, _v: any) {
                 throw err(`Cannot set prototype of insulated object`);
             },
-            set(_target, prop, _value) {
+            set(_target: any, prop: string | number, _value: any) {
                 throw err(`Cannot set property ${JSON.stringify(String(prop))} on insulated object`);
             },
             // We maintain our extensible state, both for the
             // Proxy invariants and because we don't want to modify
             // the target AT ALL!
-            isExtensible(target) {
+            isExtensible(target: any) {
                 return Reflect.isExtensible(target);
             },
-            preventExtensions(target) {
+            preventExtensions(target: any) {
                 if (!Reflect.isExtensible(target)) {
                     // Already prevented extensions, so succeed.
                     return true;
@@ -97,23 +97,23 @@ const insulate = harden(<T>(warmTarget: T): Insulated<T> => {
                 throw err(`Cannot prevent extensions of insulated object`);
             },
             // The traps that have a reasonably simple implementation:
-            get(target, prop, receiver) {
+            get(target: any, prop: string | number, receiver: any) {
                 return leave(() => Reflect.get(target, prop, receiver));
             },
-            getPrototypeOf(target) {
+            getPrototypeOf(target: any) {
                 return leave(() => Reflect.getPrototypeOf(target));
             },
-            ownKeys(target) {
+            ownKeys(target: any) {
                 return leave(() => Reflect.ownKeys(target));
             },
-            has(target, key) {
+            has(target: any, key: string | number) {
                 return leave(() => key in target);
             },
-            getOwnPropertyDescriptor(target, prop) {
+            getOwnPropertyDescriptor(target: any, prop: string | number) {
                 return leave(() => Reflect.getOwnPropertyDescriptor(target, prop));
             },
             // The recursively-wrapping traps.
-            apply(target, thisArg, argumentsList) {
+            apply(target: any, thisArg: any, argumentsList: any[]) {
                 // If the target method is from outside, but thisArg is not from outside,
                 // nor already exported to outside, we have insulation-crossing `this` capture.
                 if (Object(thisArg) === thisArg &&
@@ -126,7 +126,7 @@ const insulate = harden(<T>(warmTarget: T): Insulated<T> => {
                 const wrappedArguments = argumentsList.map(enter);
                 return leave(() => Reflect.apply(target, wrappedThis, wrappedArguments));
             },
-            construct(target, args) {
+            construct(target: any, args: any[]) {
                 const wrappedArguments = args.map(enter);
                 return leave(() => Reflect.construct(target, wrappedArguments));
             },
