@@ -1,0 +1,24 @@
+{
+  "extends": ["tslint:recommended"],
+  "rules": {
+    "no-unused-expression": [true, "allow-tagged-template"],
+    "no-unused-variable": true,
+    "no-floating-promises": [true, "Promise"],
+    "one-variable-per-declaration": false,
+    "variable-name": [true, "allow-leading-underscore"],
+    "quotemark": false,
+    "object-literal-key-quotes": [true, "as-needed"],
+    "arrow-parens": false,
+    "no-reference": false,
+    "no-bitwise": false,
+    "trailing-comma": [true, {"singleline": "never"}],
+    "no-console": [true, "log"]
+  },
+  "linterOptions": {
+    "exclude": [
+      "**/*.mjs",
+      "**/*.js"
+    ]
+  },
+  "alwaysShowRuleFailuresAsWarnings": true
+}
