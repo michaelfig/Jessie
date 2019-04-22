@@ -25,7 +25,25 @@ import harden from '@agoric/harden';
 // referencing this set as an identifier.
 export const $h_uninsulated = harden(new WeakSet());
 
-const insulate = harden((warmTarget) => {
+// These types are taken from @agoric/harden.  Please do update
+// them there, especially when Typescript provides a way to express
+// HardenedFunction/InsulatedFunction.
+type Primitive = undefined | null | boolean | string | number;
+
+export type Insulated<T> =
+    T extends Function ? InsulatedFunction<T> :
+    T extends Primitive ? Readonly<T> :
+    T extends Array<infer U> ? InsulatedArray<U> :
+    // All others are manually insulated.
+    InsulatedObject<T>;
+
+type InsulatedFunction<T> = T; // FIXME: Escape hatch.
+interface InsulatedArray<T> extends Readonly<Array<Insulated<T>>> {}
+type InsulatedObject<T> = {
+    readonly [K in keyof T]: Insulated<T[K]>
+};
+
+const insulate = harden(<T>(warmTarget: T): Insulated<T> => {
     const warmToColdMap = new WeakMap(), coldToWarmMap = new WeakMap();
     const wrapWithMaps = (obj, inMap, outMap) => {
         if (Object(obj) !== obj || $h_uninsulated.has(obj)) {

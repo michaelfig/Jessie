@@ -20,7 +20,7 @@ import harden from '@agoric/harden';
  *     <tt>undefined</tt>.
  * </ul>
  */
-export const confineExpr = harden((exprSrc, env) => {
+export const confineExpr = harden((exprSrc: string, env: Record<string, any>) => {
     exprSrc = '' + exprSrc;
     const names = Object.getOwnPropertyNames(env);
     // Note: no newline prior to ${exprSrc}, so that line numbers for
@@ -40,7 +40,7 @@ export const confineExpr = harden((exprSrc, env) => {
  * The faux version of confine is similar to confineExpr, but is for
  * statements.  It returns undefined (or throws).
  */
-export const confine = harden((src, env) => {
+export const confine = harden((src: string, env: Record<string, any>) => {
     src = '' + src;
     const names = Object.getOwnPropertyNames(env);
     // Note: no newline prior to ${src}, so that line numbers for
