@@ -2,8 +2,7 @@
   "name": "@agoric/jessie",
   "version": "0.1.0",
   "description": "Jessie standard library",
-  "module": "lib/index.mjs",
-  "types": "lib/index.mjs.ts",
+  "main": "lib/index.mjs",
   "directories": {
     "doc": "docs"
   },
