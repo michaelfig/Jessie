@@ -20,6 +20,6 @@
   },
   "homepage": "https://github.com/Agoric/Jessie#readme",
   "dependencies": {
-    "@agoric/harden": "file:../harden"
+    "@agoric/harden": "0.0.4"
   }
 }
